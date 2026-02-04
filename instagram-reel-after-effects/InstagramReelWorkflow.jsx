@@ -1,3 +1,13 @@
+/**
+ * Instagram Reel Workflow - After Effects ExtendScript
+ * =====================================================
+ * Versione 3.0 - Compatibile con After Effects italiano
+ *
+ * ISTRUZIONI:
+ * 1. Importa il tuo video in After Effects
+ * 2. Seleziona il footage video nel pannello Progetto
+ * 3. Esegui: File > Script > Esegui file script...
+ */
 
 #target aftereffects
 
@@ -19,35 +29,11 @@
     // FUNZIONI HELPER
     // ============================================
 
-    function getTransformProperty(layer, propName) {
-        // Accesso alle proprietà Transform usando indici (funziona in tutte le lingue)
-        var transform = layer.property(1); // ADBE Transform Group è sempre index 1
-
-        switch(propName) {
-            case "anchorPoint": return transform.property(1);
-            case "position": return transform.property(2);
-            case "scale": return transform.property(6);
-            case "rotation": return transform.property(10);
-            case "opacity": return transform.property(11);
-            default: return null;
-        }
-    }
-
     function safeAddEffect(layer, matchName) {
         try {
-            return layer.property("ADBE Effect Parade").addProperty(matchName);
+            return layer.Effects.addProperty(matchName);
         } catch(e) {
             return null;
-        }
-    }
-
-    function safeSetEffectValue(effect, propIndex, value) {
-        try {
-            if (effect) {
-                effect.property(propIndex).setValue(value);
-            }
-        } catch(e) {
-            // Ignora errori
         }
     }
 
@@ -74,37 +60,34 @@
     }
 
     function createPopInAnimation(layer, startTime) {
-        var scale = getTransformProperty(layer, "scale");
-        var opacity = getTransformProperty(layer, "opacity");
+        try {
+            // Usa layer.transform che funziona sempre
+            var scale = layer.transform.scale;
+            var opacity = layer.transform.opacity;
 
-        if (scale) {
             addKeyframe(scale, startTime, [0, 0]);
             addKeyframe(scale, startTime + 0.15, [115, 115]);
             addKeyframe(scale, startTime + 0.25, [100, 100]);
-        }
 
-        if (opacity) {
             addKeyframe(opacity, startTime, 0);
             addKeyframe(opacity, startTime + 0.1, 100);
-        }
+        } catch(e) {}
     }
 
     function createSlideInAnimation(layer, startTime, fromX, fromY) {
-        var position = getTransformProperty(layer, "position");
-        var opacity = getTransformProperty(layer, "opacity");
+        try {
+            var position = layer.transform.position;
+            var opacity = layer.transform.opacity;
 
-        if (position) {
             var endPos = position.value;
             var startPos = [endPos[0] + fromX, endPos[1] + fromY];
 
             addKeyframe(position, startTime, startPos);
             addKeyframe(position, startTime + 0.3, endPos);
-        }
 
-        if (opacity) {
             addKeyframe(opacity, startTime, 0);
             addKeyframe(opacity, startTime + 0.15, 100);
-        }
+        } catch(e) {}
     }
 
     // ============================================
@@ -139,21 +122,20 @@
             var bgLayer = comp.layers.add(footage);
             bgLayer.name = "BG_Sfocato";
 
-            // Scala sfondo
-            var bgScale = getTransformProperty(bgLayer, "scale");
-            if (bgScale) bgScale.setValue([CONFIG.bgScale, CONFIG.bgScale]);
+            // Scala sfondo - usa layer.transform.scale
+            bgLayer.transform.scale.setValue([CONFIG.bgScale, CONFIG.bgScale]);
 
-            // Sfocatura Gaussiana (ADBE Gaussian Blur 2)
+            // Sfocatura Gaussiana
             var blur = safeAddEffect(bgLayer, "ADBE Gaussian Blur 2");
             if (blur) {
-                safeSetEffectValue(blur, 1, CONFIG.blurAmount); // Blurriness
-                safeSetEffectValue(blur, 2, true); // Repeat Edge Pixels
+                try { blur.property(1).setValue(CONFIG.blurAmount); } catch(e) {}
+                try { blur.property(2).setValue(true); } catch(e) {}
             }
 
-            // Tonalità/Saturazione per desaturare leggermente
+            // Tonalità/Saturazione
             var hueSat = safeAddEffect(bgLayer, "ADBE HUE SATURATION");
             if (hueSat) {
-                safeSetEffectValue(hueSat, 4, -20); // Master Saturation
+                try { hueSat.property(4).setValue(-20); } catch(e) {}
             }
 
             // ========================================
@@ -169,8 +151,7 @@
             var scaleY = (CONFIG.compHeight / footage.height) * 100;
             var optScale = Math.max(scaleX, scaleY);
 
-            var mainScale = getTransformProperty(mainLayer, "scale");
-            if (mainScale) mainScale.setValue([optScale, optScale]);
+            mainLayer.transform.scale.setValue([optScale, optScale]);
 
             // ========================================
             // 3. HEADLINE
@@ -180,7 +161,8 @@
             headlineLayer.name = "Testo_Headline";
 
             // Stile testo
-            var headlineDoc = headlineLayer.property("ADBE Text Properties").property("ADBE Text Document").value;
+            var headlineTextProp = headlineLayer.property("ADBE Text Properties").property("ADBE Text Document");
+            var headlineDoc = headlineTextProp.value;
             headlineDoc.resetCharStyle();
             headlineDoc.fontSize = 90;
             headlineDoc.fillColor = [1, 1, 1];
@@ -189,20 +171,21 @@
             headlineDoc.font = "Arial-BoldMT";
             headlineDoc.tracking = 50;
             headlineDoc.justification = ParagraphJustification.CENTER_JUSTIFY;
-            headlineLayer.property("ADBE Text Properties").property("ADBE Text Document").setValue(headlineDoc);
+            headlineTextProp.setValue(headlineDoc);
 
             // Posizione
-            var headlinePos = getTransformProperty(headlineLayer, "position");
-            if (headlinePos) headlinePos.setValue([CONFIG.compWidth / 2, 380]);
+            headlineLayer.transform.position.setValue([CONFIG.compWidth / 2, 380]);
 
             // Ombra esterna
             var headlineShadow = safeAddEffect(headlineLayer, "ADBE Drop Shadow");
             if (headlineShadow) {
-                safeSetEffectValue(headlineShadow, 1, [0, 0, 0, 1]); // Color
-                safeSetEffectValue(headlineShadow, 2, 180); // Opacity
-                safeSetEffectValue(headlineShadow, 3, 135); // Direction
-                safeSetEffectValue(headlineShadow, 4, 10); // Distance
-                safeSetEffectValue(headlineShadow, 5, 25); // Softness
+                try {
+                    headlineShadow.property(1).setValue([0, 0, 0, 1]);
+                    headlineShadow.property(2).setValue(180);
+                    headlineShadow.property(3).setValue(135);
+                    headlineShadow.property(4).setValue(10);
+                    headlineShadow.property(5).setValue(25);
+                } catch(e) {}
             }
 
             // Animazione
@@ -215,17 +198,17 @@
             var subLayer = comp.layers.addText("Sottotitolo accattivante");
             subLayer.name = "Testo_Sottotitolo";
 
-            var subDoc = subLayer.property("ADBE Text Properties").property("ADBE Text Document").value;
+            var subTextProp = subLayer.property("ADBE Text Properties").property("ADBE Text Document");
+            var subDoc = subTextProp.value;
             subDoc.resetCharStyle();
             subDoc.fontSize = 56;
-            subDoc.fillColor = [0.2, 0.8, 1]; // Ciano
+            subDoc.fillColor = [0.2, 0.8, 1];
             subDoc.font = "Arial-BoldMT";
             subDoc.tracking = 25;
             subDoc.justification = ParagraphJustification.CENTER_JUSTIFY;
-            subLayer.property("ADBE Text Properties").property("ADBE Text Document").setValue(subDoc);
+            subTextProp.setValue(subDoc);
 
-            var subPos = getTransformProperty(subLayer, "position");
-            if (subPos) subPos.setValue([CONFIG.compWidth / 2, 480]);
+            subLayer.transform.position.setValue([CONFIG.compWidth / 2, 480]);
 
             // Animazione slide da sinistra
             createSlideInAnimation(subLayer, 0.8, -300, 0);
@@ -237,30 +220,29 @@
             var ctaLayer = comp.layers.addText("SCOPRI DI PIU");
             ctaLayer.name = "Testo_CTA";
 
-            var ctaDoc = ctaLayer.property("ADBE Text Properties").property("ADBE Text Document").value;
+            var ctaTextProp = ctaLayer.property("ADBE Text Properties").property("ADBE Text Document");
+            var ctaDoc = ctaTextProp.value;
             ctaDoc.resetCharStyle();
             ctaDoc.fontSize = 48;
-            ctaDoc.fillColor = [1, 0.8, 0.2]; // Giallo
+            ctaDoc.fillColor = [1, 0.8, 0.2];
             ctaDoc.font = "Arial-BoldMT";
             ctaDoc.tracking = 100;
             ctaDoc.justification = ParagraphJustification.CENTER_JUSTIFY;
-            ctaLayer.property("ADBE Text Properties").property("ADBE Text Document").setValue(ctaDoc);
+            ctaTextProp.setValue(ctaDoc);
 
-            var ctaPos = getTransformProperty(ctaLayer, "position");
-            if (ctaPos) ctaPos.setValue([CONFIG.compWidth / 2, CONFIG.compHeight - 220]);
+            ctaLayer.transform.position.setValue([CONFIG.compWidth / 2, CONFIG.compHeight - 220]);
 
             // Animazione slide dal basso
             createSlideInAnimation(ctaLayer, 1.2, 0, 200);
 
             // Pulsazione
-            var ctaScale = getTransformProperty(ctaLayer, "scale");
-            if (ctaScale) {
-                ctaScale.expression =
+            try {
+                ctaLayer.transform.scale.expression =
                     'var freq = 2;\n' +
                     'var amp = 5;\n' +
                     '[value[0] + Math.sin(time * freq * Math.PI * 2) * amp, ' +
                     'value[1] + Math.sin(time * freq * Math.PI * 2) * amp];';
-            }
+            } catch(e) {}
 
             // ========================================
             // 6. BOX SFONDO TESTO
@@ -269,7 +251,6 @@
             var boxLayer = comp.layers.addShape();
             boxLayer.name = "Box_Sfondo";
 
-            // Gruppo
             var contents = boxLayer.property("ADBE Root Vectors Group");
             var boxGroup = contents.addProperty("ADBE Vector Group");
             var boxContents = boxGroup.property("ADBE Vectors Group");
@@ -281,12 +262,11 @@
 
             // Riempimento
             var fill = boxContents.addProperty("ADBE Vector Graphic - Fill");
-            fill.property("ADBE Vector Fill Color").setValue([1, 0.2, 0.4]); // Rosa
+            fill.property("ADBE Vector Fill Color").setValue([1, 0.2, 0.4]);
             fill.property("ADBE Vector Fill Opacity").setValue(85);
 
             // Posizione box
-            var boxPos = getTransformProperty(boxLayer, "position");
-            if (boxPos) boxPos.setValue([CONFIG.compWidth / 2, 380]);
+            boxLayer.transform.position.setValue([CONFIG.compWidth / 2, 380]);
 
             // Sposta dietro headline
             boxLayer.moveAfter(headlineLayer);
@@ -308,47 +288,35 @@
             // Linea freccia
             var arrowPath = arrowGroupContents.addProperty("ADBE Vector Shape - Group");
             var arrowShape = new Shape();
-            arrowShape.vertices = [
-                [-30, 0],
-                [30, 0]
-            ];
+            arrowShape.vertices = [[-30, 0], [30, 0]];
             arrowShape.closed = false;
             arrowPath.property("ADBE Vector Shape").setValue(arrowShape);
 
-            // Punta 1
-            var arrowTip1 = arrowGroupContents.addProperty("ADBE Vector Shape - Group");
-            var tipShape1 = new Shape();
-            tipShape1.vertices = [
-                [10, -20],
-                [30, 0],
-                [10, 20]
-            ];
-            tipShape1.closed = false;
-            arrowTip1.property("ADBE Vector Shape").setValue(tipShape1);
+            // Punta
+            var arrowTip = arrowGroupContents.addProperty("ADBE Vector Shape - Group");
+            var tipShape = new Shape();
+            tipShape.vertices = [[10, -20], [30, 0], [10, 20]];
+            tipShape.closed = false;
+            arrowTip.property("ADBE Vector Shape").setValue(tipShape);
 
             // Stroke
             var arrowStroke = arrowGroupContents.addProperty("ADBE Vector Graphic - Stroke");
-            arrowStroke.property("ADBE Vector Stroke Color").setValue([1, 0.8, 0.2]); // Giallo
+            arrowStroke.property("ADBE Vector Stroke Color").setValue([1, 0.8, 0.2]);
             arrowStroke.property("ADBE Vector Stroke Width").setValue(10);
-            arrowStroke.property("ADBE Vector Stroke Line Cap").setValue(2); // Round
+            arrowStroke.property("ADBE Vector Stroke Line Cap").setValue(2);
 
-            // Posizione freccia (lato destro, punta verso il basso)
-            var arrowPos = getTransformProperty(arrowLayer, "position");
-            if (arrowPos) arrowPos.setValue([CONFIG.compWidth - 120, CONFIG.compHeight - 220]);
-
-            var arrowRot = getTransformProperty(arrowLayer, "rotation");
-            if (arrowRot) arrowRot.setValue(90);
-
-            var arrowScale = getTransformProperty(arrowLayer, "scale");
-            if (arrowScale) arrowScale.setValue([120, 120]);
+            // Posizione freccia
+            arrowLayer.transform.position.setValue([CONFIG.compWidth - 120, CONFIG.compHeight - 220]);
+            arrowLayer.transform.rotation.setValue(90);
+            arrowLayer.transform.scale.setValue([120, 120]);
 
             // Animazione bounce
-            if (arrowPos) {
-                arrowPos.expression =
+            try {
+                arrowLayer.transform.position.expression =
                     'var freq = 3;\n' +
                     'var amp = 15;\n' +
                     'value + [0, Math.sin(time * freq * Math.PI * 2) * amp];';
-            }
+            } catch(e) {}
 
             createPopInAnimation(arrowLayer, 1.4);
 
@@ -373,14 +341,10 @@
             ellipse2.property("ADBE Vector Ellipse Size").setValue([45, 45]);
             ellipse2.property("ADBE Vector Ellipse Position").setValue([15, -8]);
 
-            // Triangolo (punta cuore)
+            // Triangolo
             var triangle = heartGroupContents.addProperty("ADBE Vector Shape - Group");
             var triShape = new Shape();
-            triShape.vertices = [
-                [-35, 5],
-                [0, 45],
-                [35, 5]
-            ];
+            triShape.vertices = [[-35, 5], [0, 45], [35, 5]];
             triShape.closed = true;
             triangle.property("ADBE Vector Shape").setValue(triShape);
 
@@ -389,23 +353,21 @@
 
             // Fill cuore
             var heartFill = heartGroupContents.addProperty("ADBE Vector Graphic - Fill");
-            heartFill.property("ADBE Vector Fill Color").setValue([1, 0.2, 0.3]); // Rosso
+            heartFill.property("ADBE Vector Fill Color").setValue([1, 0.2, 0.3]);
 
             // Posizione cuore
-            var heartPos = getTransformProperty(heartLayer, "position");
-            if (heartPos) heartPos.setValue([120, 520]);
+            heartLayer.transform.position.setValue([120, 520]);
+            heartLayer.transform.scale.setValue([80, 80]);
 
-            var heartScale = getTransformProperty(heartLayer, "scale");
-            if (heartScale) {
-                heartScale.setValue([80, 80]);
-                // Battito
-                heartScale.expression =
+            // Battito
+            try {
+                heartLayer.transform.scale.expression =
                     'var bpm = 75;\n' +
                     'var amp = 12;\n' +
                     'var freq = bpm / 60;\n' +
                     'var beat = Math.pow(Math.abs(Math.sin(time * freq * Math.PI)), 4);\n' +
                     'value + [beat * amp, beat * amp];';
-            }
+            } catch(e) {}
 
             createPopInAnimation(heartLayer, 1.6);
 
@@ -424,12 +386,14 @@
             adjLayer.adjustmentLayer = true;
             adjLayer.moveToBeginning();
 
-            // Curves per contrasto leggero
+            // Curves
             safeAddEffect(adjLayer, "ADBE CurvesCustom");
 
             // ========================================
-            // FINE
+            // FINE - APRI LA COMPOSIZIONE
             // ========================================
+
+            comp.openInViewer();
 
             alert(
                 "COMPOSIZIONE CREATA!\n\n" +
@@ -450,9 +414,6 @@
 
         } catch(e) {
             alert("ERRORE:\n" + e.toString() + "\n\nLinea: " + e.line);
-            if (comp) {
-                // Mantieni la composizione anche se ci sono errori
-            }
         } finally {
             app.endUndoGroup();
         }
@@ -463,13 +424,6 @@
     // ============================================
 
     function main() {
-
-        // Verifica versione AE
-        var version = parseFloat(app.version);
-        if (version < 16.0) {
-            alert("Questo script richiede After Effects CC 2019 o superiore.");
-            return;
-        }
 
         var footage = null;
 
@@ -499,7 +453,7 @@
                 "NESSUN VIDEO SELEZIONATO\n\n" +
                 "Come usare questo script:\n\n" +
                 "1. Importa un video:\n" +
-                "   File > Importa > File... (Ctrl+I / Cmd+I)\n\n" +
+                "   File > Importa > File... (Cmd+I)\n\n" +
                 "2. Nel pannello Progetto, clicca sul video\n" +
                 "   per selezionarlo\n\n" +
                 "3. Esegui di nuovo lo script:\n" +
