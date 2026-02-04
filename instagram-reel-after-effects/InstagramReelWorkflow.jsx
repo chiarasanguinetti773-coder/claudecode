@@ -1,14 +1,3 @@
-/**
- * Instagram Reel Workflow - After Effects ExtendScript
- * =====================================================
- * Versione 2.0 - Compatibile con After Effects italiano
- *
- * ISTRUZIONI:
- * 1. Importa il tuo video in After Effects
- * 2. Seleziona il footage video nel pannello Progetto
- * 3. Esegui: File > Script > Esegui file script...
- * 4. Seleziona questo file .jsx
- */
 
 #target aftereffects
 
