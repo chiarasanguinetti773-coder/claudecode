@@ -1,0 +1,87 @@
+{
+    "name": "Educational 3 Points",
+    "description": "Template per video educativi con 3 punti principali",
+    "config": {
+        "video": {
+            "width": 1080,
+            "height": 1920,
+            "fps": 30,
+            "duration": 45
+        },
+        "colors": {
+            "background": "#F5F3EF",
+            "background_gradient": "#EDE8E3",
+            "accent": "#8B6FD9",
+            "accent_light": "#D4A5E8",
+            "text_primary": "#3D1F5C",
+            "text_secondary": "#5A4570"
+        },
+        "fonts": {
+            "headline": "Inter-Bold",
+            "headline_fallback": "Arial-BoldMT",
+            "italic": "PlayfairDisplay-Italic",
+            "italic_fallback": "Georgia-Italic"
+        },
+        "timing": {
+            "hook_duration": 3.0,
+            "point_duration": 10.0,
+            "cta_duration": 12.0,
+            "transition_duration": 0.4,
+            "word_delay": 0.1,
+            "phrase_hold": 2.5
+        },
+        "animation": {
+            "text_speed": "medium",
+            "object_style": "cups",
+            "transition_style": "swipe_diagonal"
+        }
+    },
+    "script": {
+        "hook": {
+            "text": "Smetti di fare questi errori nei tuoi Reel",
+            "duration": 3.0
+        },
+        "points": [
+            {
+                "number": "Primo",
+                "title": "iniziare con 'ciao ragazzi'",
+                "lines": [
+                    "Non ti conoscono ancora",
+                    "Hai 2 secondi per attirare l'attenzione",
+                    "Non sprecarla per fare i saluti"
+                ],
+                "object_type": "speakers",
+                "duration": 10.0
+            },
+            {
+                "number": "Secondo",
+                "title": "parlare lentamente",
+                "lines": [
+                    "Se parli lentamente la gente scrollerà",
+                    "Vai dritto al punto e usa un ritmo veloce"
+                ],
+                "object_type": "timer",
+                "duration": 10.0
+            },
+            {
+                "number": "Terzo",
+                "title": "non avere un CTA finale",
+                "lines": [
+                    "Se non chiedi nulla, non otterrai nulla",
+                    "Salva, commenta, seguimi",
+                    "Digli cosa devono fare"
+                ],
+                "object_type": "cups",
+                "duration": 10.0
+            }
+        ],
+        "cta": {
+            "lines": [
+                "E tu quanti di questi errori stavi facendo?",
+                "Vuoi avere degli hook e dei CTA già pronti?",
+                "Scrivi REEL nei commenti"
+            ],
+            "duration": 12.0
+        }
+    }
+}

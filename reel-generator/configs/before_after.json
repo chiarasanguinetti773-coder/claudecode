@@ -1,0 +1,68 @@
+{
+    "name": "Before/After Comparison",
+    "description": "Template per confronti prima/dopo",
+    "config": {
+        "video": {
+            "width": 1080,
+            "height": 1920,
+            "fps": 30,
+            "duration": 30
+        },
+        "colors": {
+            "background": "#1A1A2E",
+            "background_gradient": "#16213E",
+            "accent": "#E94560",
+            "accent_light": "#FF6B6B",
+            "text_primary": "#FFFFFF",
+            "text_secondary": "#CCCCCC"
+        },
+        "timing": {
+            "hook_duration": 2.5,
+            "point_duration": 8.0,
+            "cta_duration": 8.0,
+            "transition_duration": 0.5
+        },
+        "animation": {
+            "text_speed": "fast",
+            "transition_style": "split_reveal"
+        }
+    },
+    "script": {
+        "hook": {
+            "text": "Come migliorare i tuoi Reel in 30 secondi",
+            "duration": 2.5
+        },
+        "points": [
+            {
+                "number": "PRIMA",
+                "title": "Video piatti e noiosi",
+                "lines": [
+                    "Illuminazione scarsa",
+                    "Audio disturbato",
+                    "Nessun hook"
+                ],
+                "object_type": "icons",
+                "duration": 8.0
+            },
+            {
+                "number": "DOPO",
+                "title": "Video che catturano",
+                "lines": [
+                    "Luce naturale o ring light",
+                    "Audio pulito con mic esterno",
+                    "Hook nei primi 2 secondi"
+                ],
+                "object_type": "checkmarks",
+                "duration": 8.0
+            }
+        ],
+        "cta": {
+            "lines": [
+                "Quale versione preferisci?",
+                "Salva per dopo!",
+                "Seguimi per altri tips"
+            ],
+            "duration": 8.0
+        }
+    }
+}

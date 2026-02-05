@@ -1,0 +1,96 @@
+{
+    "name": "Countdown List",
+    "description": "Template per liste numerate (5 cose che..., Top 3...)",
+    "config": {
+        "video": {
+            "width": 1080,
+            "height": 1920,
+            "fps": 30,
+            "duration": 40
+        },
+        "colors": {
+            "background": "#FFF8F0",
+            "background_gradient": "#FFE8D6",
+            "accent": "#FF6B35",
+            "accent_light": "#FFB085",
+            "text_primary": "#2D2D2D",
+            "text_secondary": "#666666"
+        },
+        "timing": {
+            "hook_duration": 3.0,
+            "point_duration": 7.0,
+            "cta_duration": 8.0,
+            "transition_duration": 0.3
+        },
+        "animation": {
+            "text_speed": "fast",
+            "transition_style": "slide_up"
+        }
+    },
+    "script": {
+        "hook": {
+            "text": "5 app gratuite che devi scaricare subito",
+            "duration": 3.0
+        },
+        "points": [
+            {
+                "number": "5",
+                "title": "Canva",
+                "lines": [
+                    "Per creare grafiche professionali",
+                    "Gratis con tantissimi template"
+                ],
+                "object_type": "icons",
+                "duration": 6.0
+            },
+            {
+                "number": "4",
+                "title": "CapCut",
+                "lines": [
+                    "Editor video completo",
+                    "Perfetto per Reels e TikTok"
+                ],
+                "object_type": "icons",
+                "duration": 6.0
+            },
+            {
+                "number": "3",
+                "title": "Notion",
+                "lines": [
+                    "Organizza tutto il tuo lavoro",
+                    "Note, database, calendario"
+                ],
+                "object_type": "icons",
+                "duration": 6.0
+            },
+            {
+                "number": "2",
+                "title": "Snapseed",
+                "lines": [
+                    "Editing foto professionale",
+                    "Controlli avanzati gratis"
+                ],
+                "object_type": "icons",
+                "duration": 6.0
+            },
+            {
+                "number": "1",
+                "title": "ChatGPT",
+                "lines": [
+                    "Il tuo assistente AI",
+                    "Per idee, testi e molto altro"
+                ],
+                "object_type": "icons",
+                "duration": 6.0
+            }
+        ],
+        "cta": {
+            "lines": [
+                "Quale app usi già?",
+                "Salva questo Reel!",
+                "Seguimi per altre app utili"
+            ],
+            "duration": 8.0
+        }
+    }
+}
